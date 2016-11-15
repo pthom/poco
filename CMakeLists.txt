@@ -8,6 +8,18 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 
+#################################################################################
+# Setup Hunter CMake-driven cross-platform package manager (https://github.com/ruslo/hunter)
+#################################################################################
+option(HUNTER_ENABLED "Enable Hunter package manager" NO)
+if (HUNTER_ENABLED)
+  include("cmake/HunterGate.cmake")
+  HunterGate(
+      URL "https://github.com/ruslo/hunter/archive/v0.16.15.tar.gz"
+      SHA1 "6974c2150fc0d3b09de3ad1efcbf15d360647ffa"
+  )
+endif()
+
 project(Poco)
 
 file(STRINGS "${PROJECT_SOURCE_DIR}/libversion" SHARED_LIBRARY_VERSION)
@@ -36,6 +48,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # COMMENT REPLACED BY BIICODE
+
 
 #################################################################################
 # Setup C/C++ compiler options
@@ -167,6 +180,9 @@ if(WIN32 AND ENABLE_NETSSL_WIN)
     list(APPEND Poco_COMPONENTS "NetSSL_Win")
 endif(WIN32 AND ENABLE_NETSSL_WIN)
 
+if (HUNTER_ENABLED AND (ENABLE_NETSSL OR ENABLE_CRYPTO))
+  hunter_add_package(OpenSSL)
+endif()
 find_package(OpenSSL)
 if(OPENSSL_FOUND)
     include_directories("${OPENSSL_INCLUDE_DIR}")
